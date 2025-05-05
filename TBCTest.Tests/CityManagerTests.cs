@@ -31,7 +31,7 @@ namespace TBCTest.Tests
                 _repoMock.Object,
                 _uowMock.Object,
                 _mapperMock.Object,
-                _localizerMock.Object
+                _localizerMock.Object 
             );
         }
 
