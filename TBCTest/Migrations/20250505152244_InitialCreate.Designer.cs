@@ -12,8 +12,8 @@ using TBCTest.Data;
 namespace TBCTest.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20250505121646_UpdatePersonModelWithMultilangSupport")]
-    partial class UpdatePersonModelWithMultilangSupport
+    [Migration("20250505152244_InitialCreate")]
+    partial class InitialCreate
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -46,6 +46,37 @@ namespace TBCTest.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Cities");
+                });
+
+            modelBuilder.Entity("TBCTest.Models.Localization", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Key")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<string>("Language")
+                        .IsRequired()
+                        .HasMaxLength(10)
+                        .HasColumnType("nvarchar(10)");
+
+                    b.Property<string>("Value")
+                        .IsRequired()
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Language", "Key")
+                        .IsUnique();
+
+                    b.ToTable("Localizations");
                 });
 
             modelBuilder.Entity("TBCTest.Models.Person", b =>
