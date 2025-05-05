@@ -58,5 +58,23 @@ namespace TBCTest.Repositories
         {
             return await _context.People.AnyAsync(p => p.Id == id);
         }
+        public async Task AddRelationAsync(PersonRelation relation)
+        {
+            _context.PersonRelations.Add(relation);
+            await _context.SaveChangesAsync();
+        }
+
+        public async Task RemoveRelationAsync(int personId, int relatedPersonId)
+        {
+            var relation = await _context.PersonRelations
+                .FirstOrDefaultAsync(r => r.PersonId == personId && r.RelatedPersonId == relatedPersonId);
+
+            if (relation != null)
+            {
+                _context.PersonRelations.Remove(relation);
+                await _context.SaveChangesAsync();
+            }
+        }
+
     }
 }

@@ -58,5 +58,20 @@ namespace TBCTest.Controllers
 
             return NoContent();
         }
+
+        [HttpPost("relation")]
+        public async Task<IActionResult> AddRelation([FromBody] CreateRelationDto dto)
+        {
+            var success = await _manager.AddRelationAsync(dto);
+            return success ? Ok() : BadRequest();
+        }
+
+        [HttpDelete("relation")]
+        public async Task<IActionResult> RemoveRelation([FromQuery] int personId, [FromQuery] int relatedPersonId)
+        {
+            var success = await _manager.RemoveRelationAsync(personId, relatedPersonId);
+            return success ? Ok() : NotFound();
+        }
+
     }
 }

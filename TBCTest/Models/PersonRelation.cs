@@ -7,7 +7,9 @@ namespace TBCTest.Models
         public int Id { get; set; }
 
         [Required]
-        public string RelationType { get; set; } // ??????, ???????, ????????, ????
+        [RegularExpression("^(Colleague|Acquaintance|Relative|Other)$")]
+        public string RelationType { get; set; }
+
 
         public int PersonId { get; set; }
         public Person Person { get; set; }

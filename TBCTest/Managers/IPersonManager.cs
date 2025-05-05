@@ -12,5 +12,8 @@ namespace TBCTest.Managers
         Task<PersonDto> CreateAsync(CreatePersonDto dto);
         Task<bool> UpdateAsync(int id, CreatePersonDto dto);
         Task<bool> DeleteAsync(int id);
+        Task<bool> AddRelationAsync(CreateRelationDto dto);
+        Task<bool> RemoveRelationAsync(int personId, int relatedPersonId);
+
     }
 }

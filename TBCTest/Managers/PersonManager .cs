@@ -61,5 +61,33 @@ namespace TBCTest.Managers
             await _repo.DeleteAsync(person);
             return true;
         }
+        public async Task<bool> AddRelationAsync(CreateRelationDto dto)
+        {
+            if (!await _repo.ExistsAsync(dto.PersonId) || !await _repo.ExistsAsync(dto.RelatedPersonId))
+                return false;
+
+            if (dto.PersonId == dto.RelatedPersonId)
+                return false;
+
+            var relation = new PersonRelation
+            {
+                PersonId = dto.PersonId,
+                RelatedPersonId = dto.RelatedPersonId,
+                RelationType = dto.RelationType
+            };
+
+            await _repo.AddRelationAsync(relation);
+            return true;
+        }
+
+        public async Task<bool> RemoveRelationAsync(int personId, int relatedPersonId)
+        {
+            if (!await _repo.ExistsAsync(personId) || !await _repo.ExistsAsync(relatedPersonId))
+                return false;
+
+            await _repo.RemoveRelationAsync(personId, relatedPersonId);
+            return true;
+        }
+
     }
 }
