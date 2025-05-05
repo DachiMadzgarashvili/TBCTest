@@ -5,7 +5,7 @@ VisualStudioVersion = 17.9.34622.214
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TBCTest", "TBCTest\TBCTest.csproj", "{A1ED0875-11CC-4470-97E2-2AC929C44EDC}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TBCTest.Tests", "TBCTest.Tests\TBCTest.Tests.csproj", "{A83A2B6A-93BD-481F-A031-9CEEEFB76C9A}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TBCTest.Tests", "TBCTest.Tests\TBCTest.Tests.csproj", "{A83A2B6A-93BD-481F-A031-9CEEEFB76C9A}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

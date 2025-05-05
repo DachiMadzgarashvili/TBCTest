@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using Swashbuckle.AspNetCore.Annotations;
 using TBCTest.Managers;
 using TBCTest.Models.DTOs;
 
@@ -9,59 +10,52 @@ namespace TBCTest.Controllers
     public class CityController : ControllerBase
     {
         private readonly ICityManager _manager;
+        public CityController(ICityManager manager) => _manager = manager;
 
-        public CityController(ICityManager manager)
-        {
-            _manager = manager;
-        }
-
-        /// <summary>
-        /// Get all cities
-        /// </summary>
         [HttpGet]
+        [ResponseCache(Duration = 5, Location = ResponseCacheLocation.Any)]
+        [SwaggerOperation(Summary = "List all cities")]
+        [SwaggerResponse(200, "List of cities", typeof(IEnumerable<CityDto>))]
         public async Task<ActionResult<IEnumerable<CityDto>>> GetAll()
-        {
-            return Ok(await _manager.GetAllAsync());
-        }
+            => Ok(await _manager.GetAllAsync());
 
-        /// <summary>
-        /// Get a city by ID
-        /// </summary>
         [HttpGet("{id}")]
+        [SwaggerOperation(Summary = "Get city by id")]
+        [SwaggerResponse(200, "City found", typeof(CityDto))]
+        [SwaggerResponse(404, "City not found")]
         public async Task<ActionResult<CityDto>> Get(int id)
         {
             var city = await _manager.GetByIdAsync(id);
             return city == null ? NotFound() : Ok(city);
         }
 
-        /// <summary>
-        /// Create a new city
-        /// </summary>
         [HttpPost]
+        [SwaggerOperation(Summary = "Create a new city")]
+        [SwaggerResponse(201, "City created", typeof(CityDto))]
         public async Task<ActionResult<CityDto>> Create([FromBody] CreateCityDto dto)
         {
             var created = await _manager.CreateAsync(dto);
             return CreatedAtAction(nameof(Get), new { id = created.Id }, created);
         }
 
-        /// <summary>
-        /// Update an existing city
-        /// </summary>
         [HttpPut("{id}")]
+        [SwaggerOperation(Summary = "Update city")]
+        [SwaggerResponse(204, "City updated")]
+        [SwaggerResponse(404, "City not found")]
         public async Task<IActionResult> Update(int id, [FromBody] CreateCityDto dto)
         {
-            var result = await _manager.UpdateAsync(id, dto);
-            return result.Success ? NoContent() : NotFound(result.Message);
+            var (ok, msg) = await _manager.UpdateAsync(id, dto);
+            return ok ? NoContent() : NotFound(msg);
         }
 
-        /// <summary>
-        /// Delete a city by ID
-        /// </summary>
         [HttpDelete("{id}")]
+        [SwaggerOperation(Summary = "Delete city")]
+        [SwaggerResponse(204, "City deleted")]
+        [SwaggerResponse(404, "City not found")]
         public async Task<IActionResult> Delete(int id)
         {
-            var result = await _manager.DeleteAsync(id);
-            return result.Success ? NoContent() : NotFound(result.Message);
+            var (ok, msg) = await _manager.DeleteAsync(id);
+            return ok ? NoContent() : NotFound(msg);
         }
     }
 }

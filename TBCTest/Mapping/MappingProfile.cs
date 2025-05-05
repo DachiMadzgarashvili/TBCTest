@@ -19,11 +19,11 @@ namespace TBCTest.Mapping
             CreateMap<PhoneNumber, PhoneNumberDto>().ReverseMap();
 
             CreateMap<PersonRelation, RelatedPersonDto>()
-                .ForMember(dest => dest.RelatedPersonId, opt => opt.MapFrom(src => src.RelatedPerson.Id))
-                .ForMember(dest => dest.FullName, opt => opt.MapFrom(src =>
-                    $"{src.RelatedPerson.FirstNameGe} {src.RelatedPerson.LastNameGe}"));
-
-
+                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.RelatedPerson.Id))
+                .ForMember(dest => dest.FullNameGe, opt => opt.MapFrom(src =>
+                    $"{src.RelatedPerson.FirstNameGe} {src.RelatedPerson.LastNameGe}"))
+                .ForMember(dest => dest.FullNameEn, opt => opt.MapFrom(src =>
+                    $"{src.RelatedPerson.FirstNameEn} {src.RelatedPerson.LastNameEn}"));
         }
     }
 }

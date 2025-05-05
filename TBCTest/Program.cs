@@ -16,6 +16,9 @@ var builder = WebApplication.CreateBuilder(args);
 // DbContext
 builder.Services.AddDbContext<AppDbContext>(opt =>
     opt.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+builder.Services
+    .AddHealthChecks()
+    .AddDbContextCheck<AppDbContext>("Database");
 
 // Controllers + validation filter
 builder.Services.AddControllers(o => o.Filters.Add<ValidateModelAttribute>());
@@ -25,6 +28,7 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(c =>
 {
     c.SwaggerDoc("v1", new OpenApiInfo { Title = "TBCTest API", Version = "v1" });
+    c.EnableAnnotations();
     var xml = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
     var path = Path.Combine(AppContext.BaseDirectory, xml);
     if (File.Exists(path)) c.IncludeXmlComments(path);
@@ -52,6 +56,7 @@ var locOpts = new RequestLocalizationOptions
 };
 locOpts.RequestCultureProviders.Insert(0, new AcceptLanguageHeaderRequestCultureProvider());
 
+builder.Services.AddResponseCaching();
 var app = builder.Build();
 
 // Dev‐only exception page & Swagger
@@ -68,6 +73,8 @@ app.UseRequestLocalization(locOpts);
 app.UseMiddleware<ExceptionLoggingMiddleware>();
 app.UseAuthorization();
 app.MapControllers();
+app.MapHealthChecks("/healthz"); 
+app.UseResponseCaching();
 
 // Seed localization keys
 using var scope = app.Services.CreateScope();

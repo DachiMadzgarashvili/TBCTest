@@ -19,6 +19,7 @@ namespace TBCTest.Controllers
         /// Get all localization entries
         /// </summary>
         [HttpGet]
+        [ResponseCache(Duration = 5, Location = ResponseCacheLocation.Any)]
         public async Task<ActionResult<IEnumerable<Localization>>> GetAll()
         {
             return Ok(await _manager.GetAllAsync());
@@ -28,6 +29,7 @@ namespace TBCTest.Controllers
         /// Get all translations by key
         /// </summary>
         [HttpGet("by-key")]
+        [ResponseCache(Duration = 5, Location = ResponseCacheLocation.Any)]
         public async Task<ActionResult<IEnumerable<Localization>>> GetByKey([FromQuery] string key)
         {
             var results = await _manager.GetByKeyAsync(key);
