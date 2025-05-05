@@ -13,6 +13,7 @@ namespace TBCTest.Data
         public DbSet<City> Cities { get; set; }
         public DbSet<PhoneNumber> PhoneNumbers { get; set; }
         public DbSet<PersonRelation> PersonRelations { get; set; }
+        public DbSet<Localization> Localizations { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -27,6 +28,9 @@ namespace TBCTest.Data
                 .WithMany(p => p.RelatedToPeople)
                 .HasForeignKey(r => r.RelatedPersonId)
                 .OnDelete(DeleteBehavior.Restrict);
+            modelBuilder.Entity<Localization>()
+                .HasIndex(l => new { l.Language, l.Key })
+                .IsUnique();
         }
     }
 }

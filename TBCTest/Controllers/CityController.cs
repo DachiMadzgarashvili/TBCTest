@@ -17,12 +17,18 @@ namespace TBCTest.Controllers
             _manager = manager;
         }
 
+        /// <summary>
+        /// Get all cities
+        /// </summary>
         [HttpGet]
         public async Task<ActionResult<IEnumerable<CityDto>>> GetAll()
         {
             return Ok(await _manager.GetAllAsync());
         }
 
+        /// <summary>
+        /// Get a city by ID
+        /// </summary>
         [HttpGet("{id}")]
         public async Task<ActionResult<CityDto>> Get(int id)
         {
@@ -30,6 +36,9 @@ namespace TBCTest.Controllers
             return city == null ? NotFound() : Ok(city);
         }
 
+        /// <summary>
+        /// Create a new city
+        /// </summary>
         [HttpPost]
         public async Task<ActionResult<CityDto>> Create([FromBody] CreateCityDto dto)
         {
@@ -37,18 +46,24 @@ namespace TBCTest.Controllers
             return CreatedAtAction(nameof(Get), new { id = created.Id }, created);
         }
 
+        /// <summary>
+        /// Update an existing city
+        /// </summary>
         [HttpPut("{id}")]
         public async Task<IActionResult> Update(int id, [FromBody] CreateCityDto dto)
         {
-            var success = await _manager.UpdateAsync(id, dto);
-            return success ? NoContent() : NotFound();
+            var result = await _manager.UpdateAsync(id, dto);
+            return result.Success ? NoContent() : NotFound(result.Message);
         }
 
+        /// <summary>
+        /// Delete a city by ID
+        /// </summary>
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(int id)
         {
-            var success = await _manager.DeleteAsync(id);
-            return success ? NoContent() : NotFound();
+            var result = await _manager.DeleteAsync(id);
+            return result.Success ? NoContent() : NotFound(result.Message);
         }
     }
 }

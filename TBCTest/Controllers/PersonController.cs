@@ -1,9 +1,10 @@
 using Microsoft.AspNetCore.Mvc;
+using TBCTest.Managers;
+using TBCTest.Models.DTOs;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using TBCTest.Models.DTOs;
-using TBCTest.Managers;
-using TBCTest.Models;
+using Microsoft.AspNetCore.Http;
+using System.IO;
 
 namespace TBCTest.Controllers
 {
@@ -18,6 +19,9 @@ namespace TBCTest.Controllers
             _manager = manager;
         }
 
+        /// <summary>
+        /// Get all people
+        /// </summary>
         [HttpGet]
         public async Task<ActionResult<IEnumerable<PersonDto>>> GetAll()
         {
@@ -25,16 +29,19 @@ namespace TBCTest.Controllers
             return Ok(people);
         }
 
+        /// <summary>
+        /// Get a person by ID
+        /// </summary>
         [HttpGet("{id}")]
         public async Task<ActionResult<PersonDto>> Get(int id)
         {
             var person = await _manager.GetByIdAsync(id);
-            if (person == null)
-                return NotFound();
-
-            return Ok(person);
+            return person == null ? NotFound() : Ok(person);
         }
 
+        /// <summary>
+        /// Create a new person
+        /// </summary>
         [HttpPost]
         public async Task<ActionResult<PersonDto>> Create([FromBody] CreatePersonDto dto)
         {
@@ -42,6 +49,9 @@ namespace TBCTest.Controllers
             return CreatedAtAction(nameof(Get), new { id = created.Id }, created);
         }
 
+        /// <summary>
+        /// Update an existing person
+        /// </summary>
         [HttpPut("{id}")]
         public async Task<IActionResult> Update(int id, [FromBody] CreatePersonDto dto)
         {
@@ -49,16 +59,19 @@ namespace TBCTest.Controllers
             return success ? NoContent() : NotFound();
         }
 
+        /// <summary>
+        /// Delete a person by ID
+        /// </summary>
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(int id)
         {
             var success = await _manager.DeleteAsync(id);
-            if (!success)
-                return NotFound();
-
-            return NoContent();
+            return success ? NoContent() : NotFound();
         }
 
+        /// <summary>
+        /// Get related person count per type (report)
+        /// </summary>
         [HttpGet("relation-report")]
         public async Task<ActionResult<List<PersonRelationReportDto>>> GetRelationReport()
         {
@@ -66,82 +79,46 @@ namespace TBCTest.Controllers
             return Ok(report);
         }
 
+        /// <summary>
+        /// Add a related person
+        /// </summary>
         [HttpPost("relation")]
         public async Task<IActionResult> AddRelation([FromBody] CreateRelationDto dto)
         {
-            var success = await _manager.AddRelationAsync(dto);
-            return success ? Ok() : BadRequest();
+            var result = await _manager.AddRelationAsync(dto);
+            return result.Success ? Ok(result.Message) : BadRequest(result.Message);
         }
 
+        /// <summary>
+        /// Remove a related person
+        /// </summary>
         [HttpDelete("relation")]
         public async Task<IActionResult> RemoveRelation([FromQuery] int personId, [FromQuery] int relatedPersonId)
         {
-            var success = await _manager.RemoveRelationAsync(personId, relatedPersonId);
-            return success ? Ok() : NotFound();
+            var result = await _manager.RemoveRelationAsync(personId, relatedPersonId);
+            return result.Success ? Ok(result.Message) : NotFound(result.Message);
         }
 
-
+        /// <summary>
+        /// Upload an image for a person
+        /// </summary>
         [HttpPost("{id}/upload-image")]
         public async Task<IActionResult> UploadImage(int id, IFormFile file)
         {
-            if (file == null || file.Length == 0)
-                return BadRequest("No file provided.");
-
-            var person = await _manager.GetEntityAsync(id);
-            if (person == null)
-                return NotFound("Person not found.");
-
-            var uploadsFolder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "images");
-            Directory.CreateDirectory(uploadsFolder);
-
-            var ext = Path.GetExtension(file.FileName);
-            var fileName = $"{Guid.NewGuid()}{ext}";
-            var filePath = Path.Combine(uploadsFolder, fileName);
-
-            try
-            {
-                // Save new image
-                using (var stream = new FileStream(filePath, FileMode.Create, FileAccess.Write))
-                {
-                    await file.CopyToAsync(stream);
-                }
-
-                // Delete old image (if exists)
-                if (!string.IsNullOrEmpty(person.ImagePath))
-                {
-                    var oldPath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", person.ImagePath.TrimStart('/'));
-                    if (System.IO.File.Exists(oldPath))
-                        System.IO.File.Delete(oldPath);
-                }
-
-                // Save new image path
-                person.ImagePath = $"/images/{fileName}";
-                await _manager.UpdateImagePathAsync(person);
-
-                return Ok(new { imageUrl = person.ImagePath });
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, $"Image upload failed: {ex.Message}");
-            }
+            var result = await _manager.UploadImageAsync(id, file);
+            return result.Success
+                ? Ok(new { imageUrl = result.NewImagePath })
+                : StatusCode(500, result.Message);
         }
+
+        /// <summary>
+        /// Remove a person's image
+        /// </summary>
         [HttpDelete("{id}/remove-image")]
         public async Task<IActionResult> RemoveImage(int id)
         {
-            var person = await _manager.GetEntityAsync(id);
-            if (person == null || string.IsNullOrEmpty(person.ImagePath))
-                return NotFound("No image to delete.");
-
-            var fullPath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", person.ImagePath.TrimStart('/'));
-
-            if (System.IO.File.Exists(fullPath))
-                System.IO.File.Delete(fullPath);
-
-            person.ImagePath = null;
-            await _manager.UpdateImagePathAsync(person);
-
-            return Ok("Image deleted.");
+            var result = await _manager.RemoveImageAsync(id);
+            return result.Success ? Ok(result.Message) : NotFound(result.Message);
         }
-
     }
 }

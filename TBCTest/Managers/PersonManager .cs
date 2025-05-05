@@ -1,9 +1,14 @@
-using System.Collections.Generic;
-using System.Threading.Tasks;
 using AutoMapper;
+using Microsoft.AspNetCore.Http;
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Threading.Tasks;
+using TBCTest.LocalizationSupport;
 using TBCTest.Models;
 using TBCTest.Models.DTOs;
 using TBCTest.Repositories;
+using TBCTest.Services;
 
 namespace TBCTest.Managers
 {
@@ -11,11 +16,16 @@ namespace TBCTest.Managers
     {
         private readonly IPersonRepository _repo;
         private readonly IMapper _mapper;
+        private readonly IDbLocalizationService _localizer;
 
-        public PersonManager(IPersonRepository repo, IMapper mapper)
+        public PersonManager(
+            IPersonRepository repo,
+            IMapper mapper,
+            IDbLocalizationService localizer)
         {
             _repo = repo;
             _mapper = mapper;
+            _localizer = localizer;
         }
 
         public async Task<List<PersonDto>> GetAllAsync()
@@ -27,7 +37,9 @@ namespace TBCTest.Managers
         public async Task<PersonDto?> GetByIdAsync(int id)
         {
             var person = await _repo.GetByIdAsync(id);
-            return person == null ? null : _mapper.Map<PersonDto>(person);
+            return person == null
+                ? null
+                : _mapper.Map<PersonDto>(person);
         }
 
         public async Task<PersonDto> CreateAsync(CreatePersonDto dto)
@@ -39,68 +51,107 @@ namespace TBCTest.Managers
 
         public async Task<bool> UpdateAsync(int id, CreatePersonDto dto)
         {
-            if (!await _repo.ExistsAsync(id))
-                return false;
+            var person = await _repo.GetByIdAsync(id);
+            if (person == null) return false;
 
-            var existing = await _repo.GetByIdAsync(id);
-            if (existing == null)
-                return false;
-
-            _mapper.Map(dto, existing);
-
-            await _repo.UpdateAsync(existing);
+            _mapper.Map(dto, person);
+            await _repo.UpdateAsync(person);
             return true;
         }
 
         public async Task<bool> DeleteAsync(int id)
         {
             var person = await _repo.GetByIdAsync(id);
-            if (person == null)
-                return false;
+            if (person == null) return false;
 
             await _repo.DeleteAsync(person);
             return true;
         }
-        public async Task<bool> AddRelationAsync(CreateRelationDto dto)
+
+        public async Task<(bool Success, string Message)> AddRelationAsync(CreateRelationDto dto)
         {
-            if (!await _repo.ExistsAsync(dto.PersonId) || !await _repo.ExistsAsync(dto.RelatedPersonId))
-                return false;
-
             if (dto.PersonId == dto.RelatedPersonId)
-                return false;
+                return (false, _localizer.Get(AppMessages.CannotRelateToSelf));
 
-            var relation = new PersonRelation
+            if (!await _repo.ExistsAsync(dto.PersonId))
+                return (false, _localizer.Get(AppMessages.PersonNotFound));
+
+            if (!await _repo.ExistsAsync(dto.RelatedPersonId))
+                return (false, _localizer.Get(AppMessages.RelatedPersonNotFound));
+
+            await _repo.AddRelationAsync(new PersonRelation
             {
                 PersonId = dto.PersonId,
                 RelatedPersonId = dto.RelatedPersonId,
                 RelationType = dto.RelationType
-            };
+            });
 
-            await _repo.AddRelationAsync(relation);
-            return true;
+            return (true, _localizer.Get(AppMessages.RelationAdded));
         }
 
-        public async Task<bool> RemoveRelationAsync(int personId, int relatedPersonId)
+        public async Task<(bool Success, string Message)> RemoveRelationAsync(int personId, int relatedPersonId)
         {
             if (!await _repo.ExistsAsync(personId) || !await _repo.ExistsAsync(relatedPersonId))
-                return false;
+                return (false, _localizer.Get(AppMessages.PersonOrRelatedNotFound));
 
             await _repo.RemoveRelationAsync(personId, relatedPersonId);
-            return true;
-        }
-        public async Task<Person?> GetEntityAsync(int id)
-        {
-            return await _repo.GetByIdAsync(id);
+            return (true, _localizer.Get(AppMessages.RelationRemoved));
         }
 
-        public async Task UpdateImagePathAsync(Person person)
+        public Task<List<PersonRelationReportDto>> GetRelationReportAsync()
+            => _repo.GetRelationReportAsync();
+
+        public async Task<(bool Success, string? Message, string? NewImagePath)> UploadImageAsync(int id, IFormFile file)
         {
+            if (file == null || file.Length == 0)
+                return (false, _localizer.Get(AppMessages.NoFileProvided), null);
+
+            var person = await _repo.GetByIdAsync(id);
+            if (person == null)
+                return (false, _localizer.Get(AppMessages.PersonNotFound), null);
+
+            try
+            {
+                var uploads = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "images");
+                Directory.CreateDirectory(uploads);
+
+                var ext = Path.GetExtension(file.FileName);
+                var fileName = $"{Guid.NewGuid()}{ext}";
+                var dest = Path.Combine(uploads, fileName);
+
+                using var stream = new FileStream(dest, FileMode.Create, FileAccess.Write);
+                await file.CopyToAsync(stream);
+
+                if (!string.IsNullOrEmpty(person.ImagePath))
+                {
+                    var old = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", person.ImagePath.TrimStart('/'));
+                    if (File.Exists(old)) File.Delete(old);
+                }
+
+                person.ImagePath = $"/images/{fileName}";
+                await _repo.UpdateAsync(person);
+
+                return (true, null, person.ImagePath);
+            }
+            catch
+            {
+                return (false, _localizer.Get(AppMessages.ImageUploadFailed), null);
+            }
+        }
+
+        public async Task<(bool Success, string Message)> RemoveImageAsync(int id)
+        {
+            var person = await _repo.GetByIdAsync(id);
+            if (person == null || string.IsNullOrEmpty(person.ImagePath))
+                return (false, _localizer.Get(AppMessages.NoImageToDelete));
+
+            var full = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", person.ImagePath.TrimStart('/'));
+            if (File.Exists(full)) File.Delete(full);
+
+            person.ImagePath = null;
             await _repo.UpdateAsync(person);
-        }
-        public async Task<List<PersonRelationReportDto>> GetRelationReportAsync()
-        {
-            return await _repo.GetRelationReportAsync();
-        }
 
+            return (true, _localizer.Get(AppMessages.ImageDeleted));
+        }
     }
 }

@@ -1,9 +1,11 @@
+using AutoMapper;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using AutoMapper;
+using TBCTest.LocalizationSupport;
 using TBCTest.Models;
 using TBCTest.Models.DTOs;
 using TBCTest.Repositories;
+using TBCTest.Services;
 
 namespace TBCTest.Managers
 {
@@ -11,11 +13,16 @@ namespace TBCTest.Managers
     {
         private readonly ICityRepository _repo;
         private readonly IMapper _mapper;
+        private readonly IDbLocalizationService _localizer;
 
-        public CityManager(ICityRepository repo, IMapper mapper)
+        public CityManager(
+            ICityRepository repo,
+            IMapper mapper,
+            IDbLocalizationService localizer)
         {
             _repo = repo;
             _mapper = mapper;
+            _localizer = localizer;
         }
 
         public async Task<List<CityDto>> GetAllAsync()
@@ -27,7 +34,9 @@ namespace TBCTest.Managers
         public async Task<CityDto?> GetByIdAsync(int id)
         {
             var city = await _repo.GetByIdAsync(id);
-            return city == null ? null : _mapper.Map<CityDto>(city);
+            return city == null
+                ? null
+                : _mapper.Map<CityDto>(city);
         }
 
         public async Task<CityDto> CreateAsync(CreateCityDto dto)
@@ -37,23 +46,25 @@ namespace TBCTest.Managers
             return _mapper.Map<CityDto>(city);
         }
 
-        public async Task<bool> UpdateAsync(int id, CreateCityDto dto)
+        public async Task<(bool Success, string Message)> UpdateAsync(int id, CreateCityDto dto)
         {
             var city = await _repo.GetByIdAsync(id);
-            if (city == null) return false;
+            if (city == null)
+                return (false, _localizer.Get(AppMessages.CityNotFound));
 
             _mapper.Map(dto, city);
             await _repo.UpdateAsync(city);
-            return true;
+            return (true, _localizer.Get(AppMessages.CityUpdated));
         }
 
-        public async Task<bool> DeleteAsync(int id)
+        public async Task<(bool Success, string Message)> DeleteAsync(int id)
         {
             var city = await _repo.GetByIdAsync(id);
-            if (city == null) return false;
+            if (city == null)
+                return (false, _localizer.Get(AppMessages.CityNotFound));
 
             await _repo.DeleteAsync(city);
-            return true;
+            return (true, _localizer.Get(AppMessages.CityDeleted));
         }
     }
 }
