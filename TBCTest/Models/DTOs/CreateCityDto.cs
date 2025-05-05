@@ -1,12 +1,9 @@
-﻿using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 
-namespace TBCTest.Models
+namespace TBCTest.Models.DTOs
 {
-    public class City
+    public class CreateCityDto
     {
-        public int Id { get; set; }
-
         [Required, StringLength(100, MinimumLength = 2)]
         [RegularExpression("^[ა-ჰ ]+$", ErrorMessage = "NameGe must contain only Georgian letters.")]
         public string NameGe { get; set; }
@@ -14,7 +11,5 @@ namespace TBCTest.Models
         [Required, StringLength(100, MinimumLength = 2)]
         [RegularExpression("^[a-zA-Z ]+$", ErrorMessage = "NameEn must contain only Latin letters.")]
         public string NameEn { get; set; }
-
-        public ICollection<Person> People { get; set; }
     }
 }

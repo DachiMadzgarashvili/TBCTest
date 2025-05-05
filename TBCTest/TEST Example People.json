@@ -1,0 +1,42 @@
+[
+    {
+        "firstNameGe": "გიორგი",
+        "firstNameEn": "Giorgi",
+        "lastNameGe": "ბერიძე",
+        "lastNameEn": "Beridze",
+        "gender": "Male",
+        "personalNumber": "01001001010",
+        "birthDate": "1990-03-15",
+        "cityId": 1,
+        "phoneNumbers": [
+            {
+                "type": "Mobile",
+                "number": "599123456"
+            },
+            {
+                "type": "Office",
+                "number": "322345678"
+            }
+        ]
+    },
+    {
+        "firstNameGe": "ანა",
+        "firstNameEn": "Ana",
+        "lastNameGe": "მამულაშვილი",
+        "lastNameEn": "Mamulashvili",
+        "gender": "Female",
+        "personalNumber": "01001001011",
+        "birthDate": "1995-08-12",
+        "cityId": 2,
+        "phoneNumbers": [
+            {
+                "type": "Mobile",
+                "number": "599633456"
+            },
+            {
+                "type": "Office",
+                "number": "322755678"
+            }
+        ]
+    }
+]

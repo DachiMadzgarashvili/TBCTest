@@ -1,14 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using System.Text.RegularExpressions;
 
-namespace TBCTest.Models
+namespace TBCTest.Models.DTOs
 {
-    public class Person
+    public class CreatePersonDto
     {
-        public int Id { get; set; }
-
         [Required, StringLength(50, MinimumLength = 2)]
         [RegularExpression("^[ა-ჰ]+$", ErrorMessage = "FirstNameGe must contain only Georgian letters.")]
         public string FirstNameGe { get; set; }
@@ -34,24 +31,13 @@ namespace TBCTest.Models
         public string PersonalNumber { get; set; }
 
         [Required]
-        [CustomValidation(typeof(Person), nameof(ValidateBirthDate))]
         public DateTime BirthDate { get; set; }
 
         [Required]
         public int CityId { get; set; }
-        public City City { get; set; }
 
-        public string? ImagePath { get; set; }
-
-        public List<PhoneNumber> PhoneNumbers { get; set; } = new();
-        public List<PersonRelation> RelatedPeople { get; set; } = new();
-        public List<PersonRelation> RelatedToPeople { get; set; } = new();
-
-        public static ValidationResult? ValidateBirthDate(DateTime birthDate, ValidationContext context)
-        {
-            return birthDate <= DateTime.Today.AddYears(-18)
-                ? ValidationResult.Success
-                : new ValidationResult("Person must be at least 18 years old.");
-        }
+        [Required]
+        [MinLength(1)]
+        public List<PhoneNumberDto> PhoneNumbers { get; set; }
     }
 }
