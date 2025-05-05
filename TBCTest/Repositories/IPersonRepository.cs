@@ -14,6 +14,6 @@ namespace TBCTest.Repositories
         Task AddRelationAsync(PersonRelation relation);
         Task RemoveRelationAsync(int personId, int relatedPersonId);
         Task<List<PersonRelationReportDto>> GetRelationReportAsync();
-
+        Task<(List<Person> Items, int TotalCount)> SearchAsync(PersonSearchParams p);
     }
 }

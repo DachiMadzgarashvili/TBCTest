@@ -22,6 +22,8 @@ namespace TBCTest.LocalizationSupport
             { CityDeleted, "City deleted successfully." },
             { LocalizationNotFound, "Localization entry not found." },
             { LocalizationUpdated, "Localization updated successfully." },
+            { FileTooLarge, "File is too large (max 5 MB)." },
+            { InvalidFileType, "Invalid file type. Only JPG, PNG, GIF allowed." },
         };
 
         public const string RequiredField = "RequiredField";
@@ -42,5 +44,7 @@ namespace TBCTest.LocalizationSupport
         public const string CityDeleted = "CityDeleted";
         public const string LocalizationNotFound = "LocalizationNotFound";
         public const string LocalizationUpdated = "LocalizationUpdated";
+        public const string FileTooLarge = "FileTooLarge";
+        public const string InvalidFileType = "InvalidFileType";
     }
 }

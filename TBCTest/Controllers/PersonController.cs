@@ -16,13 +16,15 @@ namespace TBCTest.Controllers
         }
 
         /// <summary>
-        /// Get all people
+        /// Get persons (supports quick/detailed search and paging).
+        /// Returns X-Total-Count header.
         /// </summary>
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<PersonDto>>> GetAll()
+        public async Task<ActionResult<IEnumerable<PersonDto>>> GetAll([FromQuery] PersonSearchParams p)
         {
-            var people = await _manager.GetAllAsync();
-            return Ok(people);
+            var (items, total) = await _manager.SearchAsync(p);
+            Response.Headers["X-Total-Count"] = total.ToString();
+            return Ok(items);
         }
 
         /// <summary>

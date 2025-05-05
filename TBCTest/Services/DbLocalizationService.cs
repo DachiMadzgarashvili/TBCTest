@@ -35,19 +35,6 @@ namespace TBCTest.Services
             if (fallback != null)
                 return fallback.Value;
 
-            // insert default if missing
-            if (AppMessages.Defaults.TryGetValue(key, out var defaultValue))
-            {
-                _context.Localizations.Add(new Localization
-                {
-                    Key = key,
-                    Language = lang,
-                    Value = defaultValue
-                });
-                _context.SaveChanges();
-                return defaultValue;
-            }
-
             // worst case fallback
             return $"[{key}]";
         }

@@ -14,5 +14,6 @@ namespace TBCTest.Managers
         Task<List<PersonRelationReportDto>> GetRelationReportAsync();
         Task<(bool Success, string? Message, string? NewImagePath)> UploadImageAsync(int id, IFormFile file);
         Task<(bool Success, string? Message)> RemoveImageAsync(int id);
+        Task<(List<PersonDto> Items, int TotalCount)> SearchAsync(PersonSearchParams p);
     }
 }
