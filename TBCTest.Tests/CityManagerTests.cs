@@ -30,7 +30,7 @@ namespace TBCTest.Tests
             _manager = new CityManager(
                 _repoMock.Object,
                 _uowMock.Object,
-                _mapperMock.Object,
+                _mapperMock.Object, 
                 _localizerMock.Object
             );
         }
