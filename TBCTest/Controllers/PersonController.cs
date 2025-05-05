@@ -73,5 +73,66 @@ namespace TBCTest.Controllers
             return success ? Ok() : NotFound();
         }
 
+        [HttpPost("{id}/upload-image")]
+        public async Task<IActionResult> UploadImage(int id, IFormFile file)
+        {
+            if (file == null || file.Length == 0)
+                return BadRequest("No file provided.");
+
+            var person = await _manager.GetEntityAsync(id);
+            if (person == null)
+                return NotFound("Person not found.");
+
+            var uploadsFolder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "images");
+            Directory.CreateDirectory(uploadsFolder);
+
+            var ext = Path.GetExtension(file.FileName);
+            var fileName = $"{Guid.NewGuid()}{ext}";
+            var filePath = Path.Combine(uploadsFolder, fileName);
+
+            try
+            {
+                // Save new image
+                using (var stream = new FileStream(filePath, FileMode.Create, FileAccess.Write))
+                {
+                    await file.CopyToAsync(stream);
+                }
+
+                // Delete old image (if exists)
+                if (!string.IsNullOrEmpty(person.ImagePath))
+                {
+                    var oldPath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", person.ImagePath.TrimStart('/'));
+                    if (System.IO.File.Exists(oldPath))
+                        System.IO.File.Delete(oldPath);
+                }
+
+                // Save new image path
+                person.ImagePath = $"/images/{fileName}";
+                await _manager.UpdateImagePathAsync(person);
+
+                return Ok(new { imageUrl = person.ImagePath });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Image upload failed: {ex.Message}");
+            }
+        }
+        [HttpDelete("{id}/remove-image")]
+        public async Task<IActionResult> RemoveImage(int id)
+        {
+            var person = await _manager.GetEntityAsync(id);
+            if (person == null || string.IsNullOrEmpty(person.ImagePath))
+                return NotFound("No image to delete.");
+
+            var fullPath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", person.ImagePath.TrimStart('/'));
+
+            if (System.IO.File.Exists(fullPath))
+                System.IO.File.Delete(fullPath);
+
+            person.ImagePath = null;
+            await _manager.UpdateImagePathAsync(person);
+
+            return Ok("Image deleted.");
+        }
     }
 }

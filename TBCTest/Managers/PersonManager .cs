@@ -88,6 +88,15 @@ namespace TBCTest.Managers
             await _repo.RemoveRelationAsync(personId, relatedPersonId);
             return true;
         }
+        public async Task<Person?> GetEntityAsync(int id)
+        {
+            return await _repo.GetByIdAsync(id);
+        }
+
+        public async Task UpdateImagePathAsync(Person person)
+        {
+            await _repo.UpdateAsync(person);
+        }
 
     }
 }

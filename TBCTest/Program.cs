@@ -36,6 +36,7 @@ app.UseSwaggerUI();
 
 app.UseHttpsRedirection();
 app.UseRequestLocalization();
+app.UseStaticFiles();
 app.UseAuthorization();
 
 app.MapControllers();
