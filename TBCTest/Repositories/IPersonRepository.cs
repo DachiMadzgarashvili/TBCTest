@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using TBCTest.Models;
+using TBCTest.Models.DTOs;
 
 namespace TBCTest.Repositories
 {
@@ -14,6 +15,7 @@ namespace TBCTest.Repositories
         Task<bool> ExistsAsync(int id); 
         Task AddRelationAsync(PersonRelation relation);
         Task RemoveRelationAsync(int personId, int relatedPersonId);
+        Task<List<PersonRelationReportDto>> GetRelationReportAsync();
 
     }
 }

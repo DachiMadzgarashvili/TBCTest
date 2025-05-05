@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using TBCTest.Data;
 using TBCTest.Models;
+using TBCTest.Models.DTOs;
 
 namespace TBCTest.Repositories
 {
@@ -75,6 +76,21 @@ namespace TBCTest.Repositories
                 await _context.SaveChangesAsync();
             }
         }
+        public async Task<List<PersonRelationReportDto>> GetRelationReportAsync()
+        {
+            var people = await _context.People
+                .Include(p => p.RelatedPeople)
+                .ThenInclude(r => r.RelatedPerson)
+                .ToListAsync();
 
+            return people.Select(p => new PersonRelationReportDto
+            {
+                PersonId = p.Id,
+                FullName = p.FirstNameEn + " " + p.LastNameEn,
+                RelationCounts = p.RelatedPeople
+                    .GroupBy(r => r.RelationType)
+                    .ToDictionary(g => g.Key, g => g.Count())
+            }).ToList();
+        }
     }
 }

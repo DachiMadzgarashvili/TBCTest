@@ -59,6 +59,13 @@ namespace TBCTest.Controllers
             return NoContent();
         }
 
+        [HttpGet("relation-report")]
+        public async Task<ActionResult<List<PersonRelationReportDto>>> GetRelationReport()
+        {
+            var report = await _manager.GetRelationReportAsync();
+            return Ok(report);
+        }
+
         [HttpPost("relation")]
         public async Task<IActionResult> AddRelation([FromBody] CreateRelationDto dto)
         {
@@ -72,6 +79,7 @@ namespace TBCTest.Controllers
             var success = await _manager.RemoveRelationAsync(personId, relatedPersonId);
             return success ? Ok() : NotFound();
         }
+
 
         [HttpPost("{id}/upload-image")]
         public async Task<IActionResult> UploadImage(int id, IFormFile file)
@@ -134,5 +142,6 @@ namespace TBCTest.Controllers
 
             return Ok("Image deleted.");
         }
+
     }
 }

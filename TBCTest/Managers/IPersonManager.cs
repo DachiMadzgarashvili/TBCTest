@@ -16,6 +16,7 @@ namespace TBCTest.Managers
         Task<bool> RemoveRelationAsync(int personId, int relatedPersonId);
         Task<Person?> GetEntityAsync(int id);
         Task UpdateImagePathAsync(Person person);
+        Task<List<PersonRelationReportDto>> GetRelationReportAsync();
 
     }
 }

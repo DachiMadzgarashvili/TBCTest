@@ -97,6 +97,10 @@ namespace TBCTest.Managers
         {
             await _repo.UpdateAsync(person);
         }
+        public async Task<List<PersonRelationReportDto>> GetRelationReportAsync()
+        {
+            return await _repo.GetRelationReportAsync();
+        }
 
     }
 }
