@@ -1,10 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using TBCTest.Managers;
 using TBCTest.Models.DTOs;
-using System.Collections.Generic;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
-using System.IO;
 
 namespace TBCTest.Controllers
 {

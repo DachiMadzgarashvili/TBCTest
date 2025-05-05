@@ -1,5 +1,3 @@
-using System.Collections.Generic;
-using System.Threading.Tasks;
 using TBCTest.LocalizationSupport;
 using TBCTest.Models;
 using TBCTest.Repositories;

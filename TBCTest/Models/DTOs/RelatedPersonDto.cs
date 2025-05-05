@@ -1,6 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
-
-namespace TBCTest.Models.DTOs
+﻿namespace TBCTest.Models.DTOs
 {
     public class RelatedPersonDto
     {

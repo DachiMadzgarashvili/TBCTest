@@ -1,13 +1,13 @@
-using TBCTest.Data;
-using Microsoft.EntityFrameworkCore;
-using TBCTest.Managers;
-using TBCTest.Repositories;
-using TBCTest.Mapping;
-using TBCTest.Filters;
-using TBCTest.Middleware;
 using Microsoft.AspNetCore.Localization;
+using Microsoft.EntityFrameworkCore;
 using System.Globalization;
 using System.Reflection;
+using TBCTest.Data;
+using TBCTest.Filters;
+using TBCTest.Managers;
+using TBCTest.Mapping;
+using TBCTest.Middleware;
+using TBCTest.Repositories;
 using TBCTest.Services;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -58,7 +58,7 @@ app.UseSwaggerUI();
 
 app.UseHttpsRedirection();
 app.UseRequestLocalization();
-app.UseStaticFiles(); 
+app.UseStaticFiles();
 app.UseRequestLocalization(localizationOptions);
 app.UseAuthorization();
 

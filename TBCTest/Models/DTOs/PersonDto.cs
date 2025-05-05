@@ -1,6 +1,4 @@
-﻿using TBCTest.Models;
-
-namespace TBCTest.Models.DTOs
+﻿namespace TBCTest.Models.DTOs
 {
     public class PersonDto
     {

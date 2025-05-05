@@ -1,9 +1,4 @@
 using AutoMapper;
-using Microsoft.AspNetCore.Http;
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Threading.Tasks;
 using TBCTest.LocalizationSupport;
 using TBCTest.Models;
 using TBCTest.Models.DTOs;
