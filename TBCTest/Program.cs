@@ -3,13 +3,18 @@ using Microsoft.EntityFrameworkCore;
 using TBCTest.Managers;
 using TBCTest.Repositories;
 using TBCTest.Mapping;
+using TBCTest.Filters;
+using TBCTest.Middleware;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
-builder.Services.AddControllers();
+builder.Services.AddControllers(options =>
+{
+    options.Filters.Add<ValidateModelAttribute>();
+});
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
@@ -19,7 +24,6 @@ builder.Services.AddScoped<ICityRepository, CityRepository>();
 builder.Services.AddScoped<ICityManager, CityManager>();
 
 builder.Services.AddAutoMapper(typeof(MappingProfile));
-
 builder.Services.Configure<RequestLocalizationOptions>(options =>
 {
     var supportedCultures = new[] { "en-US", "ka-GE" };
@@ -31,6 +35,7 @@ System.Text.Encoding.RegisterProvider(System.Text.CodePagesEncodingProvider.Inst
 Console.OutputEncoding = System.Text.Encoding.UTF8;
 var app = builder.Build();
 
+app.UseMiddleware<ExceptionLoggingMiddleware>();
 app.UseSwagger();
 app.UseSwaggerUI();
 
